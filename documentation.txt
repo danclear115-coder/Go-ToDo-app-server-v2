@@ -1,0 +1,16 @@
+This is the server documentation for a notes application.
+
+Two handlers are connected to the main file – users (users functions) and
+task (tasks functions).
+
+List of user handler functions:
+    CreateUser - POST type request
+    UserLogin - POST type request
+
+List og tasks handler functions:
+    CreateTask - POST type request
+	CompleteTask - PUT type request
+	ChangeTask - PUT type request
+	GetTasks - POST type request
+	DeleteTask - DELETE type request
+    
