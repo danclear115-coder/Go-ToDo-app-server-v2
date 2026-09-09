@@ -4,7 +4,6 @@ import (
 	database "server/createDb"
 	"server/functions"
 	"server/models"
-
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -26,8 +25,8 @@ func CreateTask(c *fiber.Ctx) error {
 	}
 
 	_, err = database.DB.Exec(
-		"INSERT INTO tasks (title, content, is_completed, user_id) VALUES (?, ?, ?, ?)",
-		req.Title, req.Content, false, userID,
+		"INSERT INTO tasks (title, content, priority, is_completed, user_id) VALUES (?, ?, ?, ?, ?)",
+		req.Title, req.Content, req.Priority, false, userID,
 	)
 
 	if err != nil {
@@ -59,7 +58,7 @@ func GetTasks(c *fiber.Ctx) error {
 	}
 
 	rows, err := database.DB.Query(
-		"SELECT id, title, content, is_completed, user_id FROM tasks WHERE user_id = ?",
+		"SELECT id, title, content, is_completed, priority, user_id FROM tasks WHERE user_id = ?",
 		userId,
 	)
 
@@ -74,7 +73,7 @@ func GetTasks(c *fiber.Ctx) error {
 	for rows.Next() {
 		var t models.Task
 
-		err := rows.Scan(&t.Id, &t.Title, &t.Content, &t.IsCompleted, &t.UserId)
+		err := rows.Scan(&t.Id, &t.Title, &t.Content, &t.IsCompleted, &t.Priority, &t.UserId)
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 		}
@@ -149,6 +148,7 @@ func ChangeTask(c *fiber.Ctx) error {
 		"UPDATE tasks SET title = ?, content = ? WHERE user_id = ? AND id = ?",
 		req.Title,
 		req.Content,
+		req.Priority,
 		userID,
 		req.Id,
 	)
