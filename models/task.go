@@ -4,6 +4,7 @@ type Task struct {
 	Id int `json:"id"`
 	Title string `json:"title"`
 	Content string `json:"content"`
+	Priority string `json:"priority"`
 	IsCompleted bool `json:"is_comlpeted"`
 	UserId int `json:"user_id"`
 }
@@ -13,6 +14,7 @@ type CreateTaskRequest struct {
 	Password string `json:"password"`
 	Title string `json:"title"`
 	Content string `json:"content"`
+	Priority string `json:"priority"`
 }
 
 type GetTasksRequest struct {
@@ -30,6 +32,7 @@ type ChangeTaskRequest struct {
 	Id int `json:"id"`
 	Title string `json:"title"`
 	Content string `json:"content"`
+	Priority string `json:"priority"`
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
