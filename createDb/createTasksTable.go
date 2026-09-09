@@ -6,6 +6,7 @@ func createTasksTable() error {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			title TEXT NOT NULL,
 			content TEXT,
+			priority TEXT,
 			is_completed BOOLEAN NOT NULL DEFAULT 0,
 			user_id INTEGER NOT NULL
 		);
