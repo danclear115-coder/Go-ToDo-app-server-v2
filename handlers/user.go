@@ -1,10 +1,10 @@
 package handlers
 
 import (
-    "fmt"
+	"fmt"
 	database "server/createDb"
+	"server/functions"
 	"server/models"
-    "server/functions"
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -50,19 +50,19 @@ func UserLogin(c *fiber.Ctx) error {
 
 	req := new(models.LoginRequest)
 
-    if err := c.BodyParser(req); err != nil {
+	if err := c.BodyParser(req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "invalid data",
 		})
 	}
 
-    if req.Username == "" || req.Password == "" {
+	if req.Username == "" || req.Password == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "username and password are required",
 		})
 	}
 
-    userID, err := functions.AuthenticateUser(
+	userID, err := functions.AuthenticateUser(
 		req.Username,
 		req.Password,
 	)

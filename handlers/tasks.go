@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	database "server/createDb"
 	"server/functions"
 	"server/models"
+
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -128,24 +130,27 @@ func CompleteTask(c *fiber.Ctx) error {
 }
 
 func ChangeTask(c *fiber.Ctx) error {
-
 	req := new(models.ChangeTaskRequest)
 	if err := c.BodyParser(&req); err != nil || req.Content == "" || req.Username == "" || req.Password == "" {
+		fmt.Println("Ошибка парсинга или пустые поля:", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "invalid data or missing fields",
 		})
 	}
 
 	userID, err := functions.AuthenticateUser(req.Username, req.Password)
-
 	if err != nil {
+		fmt.Println("Ошибка авторизации пользователя:", err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "Incorrect username and password",
 		})
 	}
 
-	_, err = database.DB.Exec(
-		"UPDATE tasks SET title = ?, content = ? WHERE user_id = ? AND id = ?",
+	fmt.Printf("Отправка в БД -> Title: %s, Content: %s, Priority: %v, UserID: %v, TaskID: %v\n",
+		req.Title, req.Content, req.Priority, userID, req.Id)
+
+	res, err := database.DB.Exec(
+		"UPDATE tasks SET title = ?, content = ?, priority = ? WHERE user_id = ? AND id = ?",
 		req.Title,
 		req.Content,
 		req.Priority,
@@ -154,21 +159,28 @@ func ChangeTask(c *fiber.Ctx) error {
 	)
 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		fmt.Println("Критическая ошибка SQL:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "server error",
 		})
 	}
 
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "server error",
+	rowsAffected, _ := res.RowsAffected()
+	fmt.Println("Строк изменено в базе данных:", rowsAffected)
+
+	if rowsAffected == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "задача не найдена или данные идентичны старым",
 		})
 	}
 
-	result := models.ModifiedTask{req.Id, req.Title, req.Title}
+	result := models.ModifiedTask{
+		Id:      req.Id,
+		Title:   req.Title,
+		Content: req.Content,
+	}
 
 	return c.Status(fiber.StatusAccepted).JSON(result)
-
 }
 
 func DeleteTask(c *fiber.Ctx) error {
